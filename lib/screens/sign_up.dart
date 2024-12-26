@@ -139,6 +139,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     setState(() {
       isSigningUp = true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Email sent for verification')),
+      );
+
     });
 
     try {

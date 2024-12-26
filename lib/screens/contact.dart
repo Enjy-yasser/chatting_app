@@ -59,6 +59,7 @@
 //     );
 //   }
 // }
+import 'package:chatting_app/widgets/custom_app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
@@ -104,41 +105,44 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _contacts.isEmpty
-          ? const Center(child: Text("No contacts available"))
-          : ListView.builder(
-        itemCount: _contacts.length,
-        itemBuilder: (context, index) {
-          final contact = _contacts[index];
-
-          return ListTile(
-            title: Text(contact.displayName ?? "No Name"),
-            subtitle: Text(contact.phones?.first.value ?? "No Phone"),
-            onTap: () async {
-              final userId = await _getUserIdByPhone(contact.phones?.first.value ?? '');
-              if (userId != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                       receiverUserEmail: '',
-                      receiverUserId:userId,
-                      receiverUserPhone: contact.phones?.first.value ?? '',
-
+    return SafeArea(
+      child: Scaffold(
+        appBar: CustomAppBar(title: "Contacts Page"),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _contacts.isEmpty
+            ? const Center(child: Text("No contacts available"))
+            : ListView.builder(
+          itemCount: _contacts.length,
+          itemBuilder: (context, index) {
+            final contact = _contacts[index];
+      
+            return ListTile(
+              title: Text(contact.displayName ?? "No Name"),
+              subtitle: Text(contact.phones?.first.value ?? "No Phone"),
+              onTap: () async {
+                final userId = await _getUserIdByPhone(contact.phones?.first.value ?? '');
+                if (userId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                         receiverUserEmail: '',
+                        receiverUserId:userId,
+                        receiverUserPhone: contact.phones?.first.value ?? '',
+      
+                      ),
                     ),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("User  not found")),
-                );
-              }
-            },
-          );
-        },
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("User  not found")),
+                  );
+                }
+              },
+            );
+          },
+        ),
       ),
     );
   }

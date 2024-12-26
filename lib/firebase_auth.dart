@@ -182,6 +182,7 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
+      await sendEmailVerification(credential.user!);
 
       await _firestore.collection('users').doc(credential.user!.uid).set(
         {
