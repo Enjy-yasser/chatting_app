@@ -1,10 +1,9 @@
 import 'package:chatting_app/firebase_auth.dart';
 import 'package:chatting_app/widgets/custom_button.dart';
 import 'package:chatting_app/widgets/formcontainer_widget.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 import '../constants/app_routes.dart';
 import '../constants/app_strings.dart';
 
@@ -18,13 +17,20 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final FirebaseAuthService _auth=FirebaseAuthService();
   final TextEditingController _emailController =TextEditingController();
-  final TextEditingController _usernameController =TextEditingController();
+  final TextEditingController _phoneController =TextEditingController();
   final TextEditingController _passwordController=TextEditingController();
   bool isSigningUp=false;
+  final List<String> countryCodes = ['+1', '+20', '+44', '+91', '+234'];
+
+  // Default selected country code
+  String selectedCountryCode = '+20';
+
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -39,18 +45,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Center(
             child: Column(
               children: [
+                 Padding(
+                  padding: const EdgeInsets.only(top: 100.0),
+                  child: Icon(
+                    Icons.message_outlined,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.inversePrimary),
+                ),
                 const Padding(
-                  padding: EdgeInsets.all(100.0),
-                  child: Text(AppStrings.signUp,style: TextStyle(fontSize: 19,color: Colors.black),),
+                  padding: EdgeInsets.all(1.0),
+                  child: Text(AppStrings.signUp,style: TextStyle(fontSize: 19,color: Colors.black),
+                  ),
+                ),
+                DropdownButton<String>(
+                  value: selectedCountryCode,
+                  items: countryCodes.map((code) {
+                    return DropdownMenuItem(
+                      value: code,
+                      child: Text(code),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCountryCode = value!;
+                    });
+                  },
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: FormcontainerWidget(
-                    controller: _usernameController,
-                    hintText: AppStrings.usernameController,
-                    isPasswordField: false,
-                  )
-                ),    Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _phoneController,
+                    decoration: const InputDecoration(labelText: "Phone Number"),
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+              Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: FormcontainerWidget(
                     controller: _emailController,
@@ -70,42 +99,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   padding: const EdgeInsets.all(10.0),
                   child: MyButton(
                       onPressed: _signUp,
-                      // style:ElevatedButton.styleFrom(
-                      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                      // padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                      // shape: RoundedRectangleBorder(
-                      //   borderRadius: BorderRadius.circular(10),
-                      // ),
-                      //   elevation: 10,
-                      // ),
-                      // ),        child: ElevatedButton(
-                      // onPressed: _signUp,
-                      // style:ElevatedButton.styleFrom(
-                      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                      // padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                      // shape: RoundedRectangleBorder(
-                      //   borderRadius: BorderRadius.circular(10),
-                      // ),
-                      //   elevation: 10,
-                      // ),
-                    // color: Theme.of(context).colorScheme.inversePrimary,
                     title: 'Sign Up',
                     child: isSigningUp ? const CircularProgressIndicator(): const Text(AppStrings.signUp),
                     ),),
-                  RichText(
-                    text: TextSpan( text: AppStrings.haveAccount , style: const TextStyle(color: Colors.black),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: AppStrings.login,
-                              style: TextStyle(color: Colors.blue[200],),
-                          recognizer:TapGestureRecognizer()
-                          ..onTap =(){
-                              Navigator.pushReplacementNamed(context, Routes.loginRoute);
-                          })
-                
-                        ] ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RichText(
+                      text: TextSpan( text: AppStrings.haveAccount , style: const TextStyle(color: Colors.black),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: AppStrings.login,
+                                style: TextStyle(color: Colors.blue[200],),
+                            recognizer:TapGestureRecognizer()
+                            ..onTap =(){
+
+                                Navigator.pushReplacementNamed(context, Routes.loginRoute);
+                            })
+
+                          ] ),
+                    ),
                   )
-                
+
               ],
             ),
           ),
@@ -113,41 +127,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
-  void _signUp()async{
 
-    setState((){
-    isSigningUp=true;
-    });
-    try {
-      String email = _emailController.text;
-      String password = _passwordController.text;
-      User? user = await _auth.signUpWithEmailAndPassword(email, password);
-      if (user != null) {
-        await _auth.sendEmailVerification(user);
-        showDialog(
-            context: context,
-            builder: (context) =>
-                AlertDialog(
-                  title: const Text(AppStrings.emailVerification),
-                  content: const Text(AppStrings.emailVerificationMessage),
-                  actions: [
-                    TextButton(onPressed: () {
-                      Navigator.pushReplacementNamed(
-                          context, Routes.loginRoute);
-                    },
-                        child: const Text("OK"))
-                  ],
-                ));
-      }
-    }catch(e){
-      print("Error occurred during sign up $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error $e")));
-    }finally{
-      setState(() {
-        isSigningUp=false;
-      });
+  void _signUp() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty ||
+        _phoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
     }
 
+    setState(() {
+      isSigningUp = true;
+    });
+
+    try {
+      String phoneNumber = _phoneController.text;
+      // String phoneNumber = '$selectedCountryCode${_phoneController.text}';
+      print('Attempting to sign up with phone: $phoneNumber');
+
+      await _auth.signUpWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+        phoneNumber,
+      );
+
+      await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser!.uid).set({
+        'phone': phoneNumber,
+        'email': _emailController.text,
+      });
+
+
+      Navigator.pushReplacementNamed(context, Routes.loginRoute);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error signing up: $e')),
+      );
+    } finally {
+      setState(() {
+        isSigningUp = false;
+      });
+    }
   }
 
 }

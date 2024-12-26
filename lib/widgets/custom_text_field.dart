@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+
 class CustomTextField extends StatelessWidget {
 final TextEditingController controller;
 final VoidCallback onSend;
-// final VoidCallback locationSend;
-//   final Function(String) onSendLocation;
+final Function(String) onSendLocation;
 
   const CustomTextField({
     super.key,
     required this.controller,
     required this.onSend,
-    // required this.onSendLocation,
+    required this.onSendLocation,
   });
 
 Future<void> _getCurrentLocation(BuildContext context) async{
@@ -29,18 +29,20 @@ Future<void> _getCurrentLocation(BuildContext context) async{
       Position position = await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
   );
-  String currentLocationMessage = "Location : ${position.latitude},${position.longitude}";
+    String googleMapsLink = "https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}";
 
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //         content: Text("Current Location: $currentLocation"),),);
-    // onSendLocation(currentLocationMessage);
+    onSendLocation(googleMapsLink);
+
+  // String currentLocationMessage = "Location : ${position.latitude},${position.longitude}";
+  // onSendLocation(currentLocationMessage);
+
             }catch (e) {
   ScaffoldMessenger.of(context).showSnackBar(
   SnackBar(content: Text('Error fetching location: $e'), backgroundColor: Colors.red),
   );
   }
 }
+ // const final List<Message> _messages = [];
 
 
 @override
@@ -52,8 +54,10 @@ Future<void> _getCurrentLocation(BuildContext context) async{
         children: [
           ElevatedButton(
             onPressed: ()=>_getCurrentLocation(context), style: ElevatedButton.styleFrom(backgroundColor: Colors.green,),
-            child: const Icon(Icons.location_on,color: Colors.black,size: 20,),
-          ),
+            child: const
+                Icon(Icons.location_on,color: Colors.black,size: 20,),
+            ),
+
           Expanded(
             child: TextField(
               controller: controller,
@@ -70,12 +74,6 @@ Future<void> _getCurrentLocation(BuildContext context) async{
         style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
         child: const Icon(Icons.send,color: Colors.black,size: 20,),
       ),
-
-      // ),ElevatedButton.icon(onPressed: onSend, label: const Text("send",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),), icon: const Icon(Icons.send,color: Colors.white,),
-      // style: ElevatedButton.styleFrom(
-      // backgroundColor: Colors.green,
-      // ),
-      // ),
 
       ],
 

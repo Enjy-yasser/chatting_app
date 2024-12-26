@@ -4,10 +4,13 @@ class AppStrings{
   static const String login="Log In";
   static const String home="Home";
   static const String profile="Profile";
-  static const String usernameController="Username Controller";
-  static const String emailController="Email Controller";
-  static const String passwordController="Password Controller";
+  static const String usernameController="Username ";
+  static const String phoneController="Phone number ";
+  static const String emailController="Email ";
+  static const String passwordController="Password ";
+  static const String phoneNumberController="Mobile Number ";
   static const String haveAccount ="Already Have Account";
+  static const String dontHaveAccount ="Don't have an account ?";
   static const String emailVerification ="Email Verification";
   static const String resendEmailVerification ="Resend verification email";
 
