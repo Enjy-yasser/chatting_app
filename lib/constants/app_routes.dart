@@ -24,7 +24,7 @@ class Routes{
       case profileRoute:
         return MaterialPageRoute(builder: (context)=> const ProfileScreen());
       case chatRoute:
-        return MaterialPageRoute(builder: (context)=> const ChatScreen(receiverUserEmail: '', receiverUserId: '', receiverUserPhone: '',));
+        return MaterialPageRoute(builder: (context)=> const ChatScreen(receiverUserPhone: '', receiverUserEmail: '', receiverUserId: '',));
       // case chatRoute2:
       //   return MaterialPageRoute(builder: (context)=> const Chat2());
       case contactRoute:

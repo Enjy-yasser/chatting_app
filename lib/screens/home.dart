@@ -88,9 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-// import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:chatting_app/widgets/drawer.dart';
 // import 'package:flutter/material.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'chat.dart';
 // import 'contact.dart';
@@ -103,23 +103,30 @@ class _HomeScreenState extends State<HomeScreen> {
 // }
 //
 // class _HomeScreenState extends State<HomeScreen> {
-//   String? _currentUserPhone;
+//   String? _currentUserId;
 //
 //   @override
 //   void initState() {
 //     super.initState();
-//     _fetchCurrentUserPhone();
-//   }
-//
-//   Future<void> _fetchCurrentUserPhone() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     setState(() {
-//       _currentUserPhone = prefs.getString('userPhoneNumber');
-//     });
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user != null) {
+//       _currentUserId = user.uid;
+//     } else {
+//       // Handle the case when the user is not signed in
+//       _currentUserId = null;
+//     }
 //   }
 //
 //   @override
 //   Widget build(BuildContext context) {
+//     if (_currentUserId == null) {
+//       return Scaffold(
+//         body: Center(
+//           child: Text("User not signed in. Please sign in to continue."),
+//         ),
+//       );
+//     }
+//
 //     return Scaffold(
 //       appBar: AppBar(
 //         title: const Text("Home"),
@@ -136,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //         ],
 //       ),
 //       drawer: MyDrawer(),
-//       body: _currentUserPhone == null ? const Center(child: CircularProgressIndicator()) : _buildChats(),
+//       body: _buildChats(),
 //     );
 //   }
 //
@@ -144,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //     return StreamBuilder<QuerySnapshot>(
 //       stream: FirebaseFirestore.instance
 //           .collection('chats')
-//           .where('participants', arrayContains: _currentUserPhone)
+//           .where('participants', arrayContains: _currentUserId)
 //           .snapshots(),
 //       builder: (context, snapshot) {
 //         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -161,8 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //           itemCount: chats.length,
 //           itemBuilder: (context, index) {
 //             final chat = chats[index].data() as Map<String, dynamic>;
-//             final otherParticipantPhone = (chat['participants'] as List)
-//                 .firstWhere((phone) => phone != _currentUserPhone, orElse: () => 'Unknown');
+//             final otherParticipantId = (chat['participants'] as List).firstWhere((id) => id != _currentUserId);
 //             final lastMessage = chat['lastMessage'];
 //             final contactName = chat['contactName'] ?? 'Unknown';
 //
@@ -178,9 +184,9 @@ class _HomeScreenState extends State<HomeScreen> {
 //                   context,
 //                   MaterialPageRoute(
 //                     builder: (context) => ChatScreen(
-//                       receiverUserId: '', // Replace with actual receiver user ID if available
+//                       receiverUserId: otherParticipantId,
 //                       receiverUserEmail: 'Unknown', // Replace with actual receiver email if available
-//                       receiverUserPhone: otherParticipantPhone, // Replace with actual receiver phone if available
+//                       receiverUserPhone: 'Unknown', // Replace with actual receiver phone if available
 //                     ),
 //                   ),
 //                 );
