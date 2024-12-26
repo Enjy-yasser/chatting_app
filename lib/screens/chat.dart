@@ -170,3 +170,4 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.clear();
   }
 }
+
